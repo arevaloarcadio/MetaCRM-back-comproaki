@@ -109,9 +109,22 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
-        //
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $product = Product::where('id',$id)->with('store')->first();
+
+            $data  =  new Data($product);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
     }
 
     /**
