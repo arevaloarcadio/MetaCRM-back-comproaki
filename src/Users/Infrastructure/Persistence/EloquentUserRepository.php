@@ -17,7 +17,7 @@ final class EloquentUserRepository implements UserRepository
         $model->lastname  = $user->lastname();
         $model->email     = $user->email();
         $model->password  = $user->password();
-        $model->image     = 'default.png';
+        $model->image     = '/storage/profiles/default.png';
         $model->admin     = false;
         $model->active    = true;
         $model->save();
@@ -43,7 +43,7 @@ final class EloquentUserRepository implements UserRepository
         $model->email     = $user->email();
         $model->password  = null;
         $model->auth_provider = $user->auth_provider();
-        $model->image     = 'default.png';
+        $model->image     = '/storage/profiles/default.png';
         $model->admin     = false;
         $model->active    = true;
         $model->save();

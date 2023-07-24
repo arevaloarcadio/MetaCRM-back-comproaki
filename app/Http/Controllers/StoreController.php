@@ -51,11 +51,12 @@ class StoreController extends Controller
 
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
-            'address' => 'required',
             'state' => 'required',
+            'city' => 'required',
+            'postal_code' => 'required',
+            'phone' => 'nullable',
+            'address' => 'nullable',
             'image' => 'nullable|file',
-            'country' => 'required',
-            'phone' => 'required',
         ]);
 
         if($validator->fails()){
@@ -67,11 +68,12 @@ class StoreController extends Controller
 
             $store = new Store;
             $store->name = $request->input('name');
-            $store->address = $request->input('address');
             $store->state = $request->input('state');
-            $store->image = $request->file('image');
-            $store->country = $request->input('country');
+            $store->city = $request->input('city');
+            $store->postal_code = $request->input('postal_code');
             $store->phone = $request->input('phone');
+            $store->address = $request->input('address');
+            $store->image = $request->file('image');
             $store->save();
 
             $user_store = new UserStore;
@@ -126,11 +128,12 @@ class StoreController extends Controller
 
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
-            'address' => 'required',
             'state' => 'required',
+            'city' => 'required',
+            'postal_code' => 'required',
+            'phone' => 'nullable',
+            'address' => 'nullable',
             'image' => 'nullable',
-            'country' => 'required',
-            'phone' => 'required',
         ]);
 
         if($validator->fails()){
@@ -141,12 +144,15 @@ class StoreController extends Controller
         try{
 
             $store = Store::where('id',$id)->first();
+            
             $store->name = $request->input('name');
-            $store->address = $request->input('address');
             $store->state = $request->input('state');
-            $request->file('image') ? $store->image = $request->file('image') : null;
-            $store->country = $request->input('country');
+            $store->city = $request->input('city');
+            $store->postal_code = $request->input('postal_code');
             $store->phone = $request->input('phone');
+            $store->address = $request->input('address');
+            $request->file('image') ? $store->image = $request->file('image') : null;
+            
             $store->save();
 
             $data  =  new Data($store);

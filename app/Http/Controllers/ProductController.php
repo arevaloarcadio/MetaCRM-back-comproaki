@@ -68,10 +68,7 @@ class ProductController extends Controller
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
             'description' => 'required',
-            'state' => 'required',
             'image' => 'nullable|file',
-            'country' => 'required',
-            'phone' => 'required',
             'store_id' => 'required|numeric|exists:stores,id',
         ]);
 
@@ -85,10 +82,7 @@ class ProductController extends Controller
             $product = new Product;
             $product->name = $request->input('name');
             $product->description = $request->input('description');
-            $product->state = $request->input('state');
             $product->image = $request->file('image');
-            $product->country = $request->input('country');
-            $product->phone = $request->input('phone');
             $product->store_id = $request->input('store_id');
             $product->user_id = Auth::user()->id;
             $product->save();
@@ -141,10 +135,7 @@ class ProductController extends Controller
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
             'description' => 'required',
-            'state' => 'required',
             'image' => 'nullable',
-            'country' => 'required',
-            'phone' => 'required',
         ]);
 
         if($validator->fails()){
@@ -157,10 +148,7 @@ class ProductController extends Controller
             $product = Product::where('id',$id)->first();
             $product->name = $request->input('name');
             $product->description = $request->input('description');
-            $product->state = $request->input('state');
-             $request->file('image') ? $product->image = $request->file('image') : null;
-            $product->country = $request->input('country');
-            $product->phone = $request->input('phone');
+            $request->file('image') ? $product->image = $request->file('image') : null;
             $product->save();
             
             $data  =  new Data($product);

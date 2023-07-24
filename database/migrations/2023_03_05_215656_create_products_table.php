@@ -17,9 +17,6 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('image');
-            $table->string('country');
-            $table->string('state');
-            $table->string('phone');
             $table->text('description');
             $table->unsignedInteger('store_id');
             $table->unsignedInteger('user_id');

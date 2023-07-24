@@ -7,11 +7,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\Api as ApiHelper;
+use App\Http\Resources\Data;
+use App\Traits\ApiController;
 use Illuminate\Http\Request;
 use App\Models\{TokenAccess,Host, User};
 
 class AuthController extends Controller
-{
+{   
+    use ApiController;
+    
     public function login(Request $request)
     {
         $credentials = $request->only("email", "password");
@@ -79,27 +84,62 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout()
-    {
-        JWTAuth::invalidate();
+    public function update(Request $request) {
+
+      $resource = ApiHelper::resource();
+
+      $validator= \Validator::make($request->all(),[
+        'firstname' => 'required',
+        'lastname' => 'required',
+        'password' => 'confirmed',
+        'image' => 'nullable',
+      ],
+      [
+        'firstname.required' => 'El nombre es requerido',
+        'lastname.required' => 'El apellido es requerido',
+      ]);
+     
+      if($validator->fails()){
+          ApiHelper::setError($resource, 0, 422, $validator->errors()->all());
+          return $this->sendResponse($resource);
+      }
+
+      try{
+        
+        $user = Auth::user();
+
+        $user->firstname = $request->input('firstname');
+        $user->lastname = $request->input('lastname');
+        $user->password = Hash::make($request->input('password'));
+        $request->file('image') ? $user->image = $request->file('image') : null;
+        
+        $user->save();
+        
+        $data  =  new Data($user);
+        $resource = array_merge($resource, $data->toArray($request));
+        ApiHelper::success($resource);
+      }catch(\Exception $e){
+        ApiHelper::setException($resource, $e);
+      }
+
+      return $this->sendResponse($resource);
+    }
+
+    public function logout(Request $request)
+    {   
+
+        $request->user()->currentAccessToken()->delete();
+
         return response()->json([
             'message' => 'Successfully logged out'
         ]);
     }
 
-    public function refresh()
-    {
-        return response()->json([
-            'access_token' => JWTAuth::refresh(),
-            'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60
-        ]);
-    }
 
-    public function me()
+    public function me(Request $request)
     {
         return response()->json(
-            JWTAuth::user()
+            $request->user()
         );
     }
 }

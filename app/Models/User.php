@@ -43,7 +43,12 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    
+     public function setImageAttribute($value){
+        $name = '/storage/profiles/'.date('dmYhms').'.'.$value->getClientOriginalExtension();
+        $this->attributes['image'] = $name;
+        \Storage::disk('local')->put($name, \File::get($value));
+    }
+
     public function organizations(){
         return $this->hasMany('App\Models\Organization','user_id');
     }
