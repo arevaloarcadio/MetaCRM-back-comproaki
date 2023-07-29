@@ -110,7 +110,7 @@ class AuthController extends Controller
 
         $user->firstname = $request->input('firstname');
         $user->lastname = $request->input('lastname');
-        $user->password = Hash::make($request->input('password'));
+        $request->input('password') ? $user->password = Hash::make($request->input('password')) : null;
         $request->file('image') ? $user->image = $request->file('image') : null;
         
         $user->save();
