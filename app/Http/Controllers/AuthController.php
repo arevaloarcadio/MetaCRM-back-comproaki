@@ -161,7 +161,7 @@ class AuthController extends Controller
       
       $validate['domain'] = $request->header("domain");
 
-      $validator= \Validator::make($request->all(),[
+      $validator= \Validator::make($validate,[
         'name' => 'required',
         'email' => 'required',
         'image' => 'nullable',
