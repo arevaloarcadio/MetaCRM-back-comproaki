@@ -44,7 +44,7 @@ class ProductController extends Controller
 
         try{
 
-            $products = Product::with('store')->paginate(20);
+            $products = Product::with('store')->get();
 
             $data  =  new Data($products);
             $resource = array_merge($resource, $data->toArray($request));
