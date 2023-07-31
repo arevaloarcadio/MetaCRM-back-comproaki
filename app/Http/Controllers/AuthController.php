@@ -191,8 +191,8 @@ class AuthController extends Controller
             $user->email = $request->input('email');
             $user->lastname = '';
             $user->password = null;
-            $user->admin     = false;
-            $user->active    = true;
+            $user->admin = false;
+            $user->active = true;
             $user->image = '/storage/profiles/default.png';
             $user->auth_provider = $request->input('auth_provider');
             $user->save();   
