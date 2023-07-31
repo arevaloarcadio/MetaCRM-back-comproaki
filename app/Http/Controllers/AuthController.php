@@ -193,15 +193,10 @@ class AuthController extends Controller
             $user->password = null;
             $user->admin     = false;
             $user->active    = true;
-            
-            $user->image = $request->input('image') ? 
-                $request->input('image') : 
-                '/storage/profiles/default.png';
-            
+            $user->image = '/storage/profiles/default.png';
             $user->auth_provider = $request->input('auth_provider');
             $user->save();   
         }
-        
         
         $domain = $request->header("domain");
 

@@ -44,12 +44,6 @@ class User extends Authenticatable
     ];
 
      public function setImageAttribute($value){
-        
-        if(is_string($value)){
-            $this->attributes['image'] = $value;
-            return;
-        }
-
         $name = '/storage/profiles/'.date('dmYhms').'.'.$value->getClientOriginalExtension();
         $this->attributes['image'] = $name;
         \Storage::disk('local')->put($name, \File::get($value));
