@@ -191,6 +191,8 @@ class AuthController extends Controller
             $user->email = $request->input('email');
             $user->lastname = '';
             $user->password = null;
+            $user->admin     = false;
+            $user->active    = true;
             
             $user->image = $request->input('image') ? 
                 $request->input('image') : 
