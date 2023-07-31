@@ -21,7 +21,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only("email", "password");
         
-        $validate =  $request->only("email", "password");
+        $validate = $request->only("email", "password");
 
         $validate['domain'] = $request->header("domain");
 
@@ -115,9 +115,123 @@ class AuthController extends Controller
         
         $user->save();
         
-        $data  =  new Data($user);
-        $resource = array_merge($resource, $data->toArray($request));
-        ApiHelper::success($resource);
+        $domain = $request->header("domain");
+
+        $host_id = Host::where('domain',$domain)->first()->id;
+        
+        $token = $user->createToken($domain)->plainTextToken;
+
+        $token_access = TokenAccess::where('user_id',$user->id)
+            ->where('host_id',$host_id)
+            ->first();
+        
+        if (is_null($token_access)){
+            
+            $token_access = new TokenAccess;
+            $token_access->user_id = $user->id;
+            $token_access->host_id = $host_id;
+            $token_access->token = $token;
+            $token_access->save();
+        
+        }else{
+            
+            TokenAccess::where('user_id',$user->id)
+                ->where('host_id',$host_id)
+                ->update(['token' => $token]);
+        }
+
+        return response()->json([
+            'access_token' => $token,
+            'user' => $user,
+            'token_type' => 'bearer',
+        ]);
+
+      }catch(\Exception $e){
+        ApiHelper::setException($resource, $e);
+      }
+
+      return $this->sendResponse($resource);
+    }
+
+    public function registerProvider(Request $request) {
+
+      $resource = ApiHelper::resource();
+      
+      $validate = $request->only("name","email","image","auth_provider");
+      
+      $validate['domain'] = $request->header("domain");
+
+      $validator= \Validator::make($request->all(),[
+        'name' => 'required',
+        'email' => 'required',
+        'image' => 'nullable',
+        'auth_provider' => 'required',
+        'domain' => 'required'
+      ],
+      [
+        'name.required' => 'El nombre es requerido',
+        'email.required' => 'El correo es requerido',
+        'auth_provider.required' => 'El auth provider es requerido',
+        'domain.required' => 'El dominio es requerido',
+      ]);
+     
+      if($validator->fails()){
+          ApiHelper::setError($resource, 0, 422, $validator->errors()->all());
+          return $this->sendResponse($resource);
+      }
+
+      try{
+        
+
+        $user = User::where('email',$request->input('email'))->first();
+
+        if(is_null($user)){
+            $user = new User;
+            $user->firstname = $request->input('name');
+            $user->email = $request->input('email');
+            $user->lastname = '';
+            $user->password = null;
+            
+            $user->image = $request->input('image') ? 
+                $request->input('image') : 
+                '/storage/profiles/default.png';
+            
+            $user->auth_provider = $request->input('auth_provider');
+            $user->save();   
+        }
+        
+        
+        $domain = $request->header("domain");
+
+        $host_id = Host::where('domain',$domain)->first()->id;
+        
+        $token = $user->createToken($domain)->plainTextToken;
+
+        $token_access = TokenAccess::where('user_id',$user->id)
+            ->where('host_id',$host_id)
+            ->first();
+        
+        if (is_null($token_access)){
+            
+            $token_access = new TokenAccess;
+            $token_access->user_id = $user->id;
+            $token_access->host_id = $host_id;
+            $token_access->token = $token;
+            $token_access->save();
+        
+        }else{
+            
+            TokenAccess::where('user_id',$user->id)
+                ->where('host_id',$host_id)
+                ->update(['token' => $token]);
+        }
+
+        return response()->json([
+            'access_token' => $token,
+            'user' => $user,
+            'token_type' => 'bearer',
+        ]);
+
       }catch(\Exception $e){
         ApiHelper::setException($resource, $e);
       }
