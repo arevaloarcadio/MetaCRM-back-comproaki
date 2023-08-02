@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function() { 
     Route::prefix('stores')->group(function () {
         Route::get('/','StoreController@index');
+        Route::get('/byUser','StoreController@byUser');
         Route::get('/{id}','StoreController@show');
         Route::post('/','StoreController@store');
         Route::post('/{id}','StoreController@update');
@@ -30,7 +31,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::prefix('products')->group(function () {
         Route::get('/','ProductController@index');
-        Route::get('/all','ProductController@all');
+        Route::get('/byUser','ProductController@byUser');
+        Route::get('/byStore/{store_id}','ProductController@byStore');
         Route::get('/{id}','ProductController@show');
         Route::post('/','ProductController@store');
         Route::post('/{id}','ProductController@update');

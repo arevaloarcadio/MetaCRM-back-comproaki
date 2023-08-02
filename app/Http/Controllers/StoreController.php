@@ -19,14 +19,15 @@ class StoreController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
+
     public function index(Request $request)
     {
         $resource = ApiHelper::resource();
 
         try{
 
-            $user = Auth::user();
-            $stores =  $user->stores;
+            $stores =  Store::paginate(20);
           
             $data  =  new Data($stores);
             $resource = array_merge($resource, $data->toArray($request));
@@ -38,7 +39,25 @@ class StoreController extends Controller
         return $this->sendResponse($resource);
     }
 
+    public function byUser(Request $request)
+    {
+        $resource = ApiHelper::resource();
 
+        try{
+
+            $user = Auth::user();
+            $stores =  $user->stores()->paginate(20);
+          
+            $data  =  new Data($stores);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+    
     /**
      * Store a newly created resource in storage.
      *

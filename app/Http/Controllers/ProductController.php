@@ -18,14 +18,33 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index(Request $request)
     {
         $resource = ApiHelper::resource();
 
         try{
 
+            $products = Product::with('store')->paginate(20);
+
+            $data  =  new Data($products);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+    
+    public function byUser(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
             $user = Auth::user();
-            $products = $user->products()->with('store')->get();
+            $products = $user->products()->with('store')->paginate(20);
 
             $data  =  new Data($products);
             $resource = array_merge($resource, $data->toArray($request));
@@ -38,13 +57,13 @@ class ProductController extends Controller
     }
 
 
-    public function all(Request $request)
+    public function byStore(Request $request,$store_id)
     {
         $resource = ApiHelper::resource();
 
         try{
 
-            $products = Product::with('store')->get();
+            $products = Product::where('store_id',$store_id)->paginate(20);
 
             $data  =  new Data($products);
             $resource = array_merge($resource, $data->toArray($request));
