@@ -185,12 +185,10 @@ class StoreController extends Controller
             $user_store->user_id = Auth::user()->id;  
             $user_store->save();
 
-            foreach ($request->input('tags') as $tag) {
-                $store->tags()->attach($tag,[
-                  'created_at' => Carbon::now(), 
-                  'updated_at' => Carbon::now()
-                ]);
-            }
+            $store->tags()->sync($request->input('tags'),[
+              'created_at' => Carbon::now(), 
+              'updated_at' => null
+            ]);
 
             $data  =  new Data($store);
             $resource = array_merge($resource, $data->toArray($request));
@@ -266,6 +264,11 @@ class StoreController extends Controller
             
             $store->save();
 
+           $store->tags()->sync($request->input('tags'),[
+              'created_at' => Carbon::now(), 
+              'updated_at' => Carbon::now()
+            ]);
+            
             $data  =  new Data($store);
             $resource = array_merge($resource, $data->toArray($request));
             ApiHelper::success($resource);

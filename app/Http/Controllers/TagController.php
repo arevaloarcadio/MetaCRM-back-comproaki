@@ -7,7 +7,7 @@ use App\Helpers\Api as ApiHelper;
 use Illuminate\Http\Request;
 use App\Http\Resources\Data;
 use App\Traits\ApiController;
-use App\Models\Tag;
+use App\Models\{Tag,Store};
 
 class TagController extends Controller
 {   
@@ -40,6 +40,30 @@ class TagController extends Controller
             
             $tags = Tag::all();
           
+            $data  =  new Data($tags);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+        return $this->sendResponse($resource);
+    }
+
+    public function byStore(Request $request,$store_id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+            
+            $store = Store::where('id',$store_id)->first();
+            
+            if (is_null($store)) {
+                ApiHelper::setError($resource, 0, 422, ['Tienda no encontrada']);
+                return $this->sendResponse($resource);
+            }
+            
+            $tags = $store->tags;
+
             $data  =  new Data($tags);
             $resource = array_merge($resource, $data->toArray($request));
             ApiHelper::success($resource);
