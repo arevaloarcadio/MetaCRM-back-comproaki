@@ -59,8 +59,13 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Organization','user_id');
     }
 
+    public function likeStores(){
+      return $this->belongsToMany('App\Models\Store','followers')
+        ->using('App\Models\Follower');
+    }
+
     public function stores(){
-      return $this->belongsToMany('App\Models\Store','user_stores',)
+      return $this->belongsToMany('App\Models\Store','user_stores')
         ->using('App\Models\UserStore');
     }
 

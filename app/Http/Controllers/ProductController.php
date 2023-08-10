@@ -7,7 +7,7 @@ use App\Helpers\Api as ApiHelper;
 use App\Http\Resources\Data;
 use App\Traits\ApiController;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Product;
+use App\Models\{Product,Store,Tag};
 
 class ProductController extends Controller
 {   
@@ -63,7 +63,7 @@ class ProductController extends Controller
 
         try{
 
-            $products = Product::where('store_id',$store_id)->paginate(20);
+            $products = Product::where('store_id',$store_id)->with('store')->paginate(20);
 
             $data  =  new Data($products);
             $resource = array_merge($resource, $data->toArray($request));
@@ -74,6 +74,72 @@ class ProductController extends Controller
 
         return $this->sendResponse($resource);
     }
+
+    public function byStoreUser(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+            
+            $user = Auth::user();
+          
+            $stores = $user->likeStores()
+                ->select('stores.id')
+                ->get()
+                ->toArray();
+            
+            $store_ids = array_column($stores,'id');
+
+            $products = Product::whereIn('store_id',$store_ids)
+                ->with('store')
+                ->orderBy('products.created_at','DESC')
+                ->paginate(20);
+
+            $data  =  new Data($products);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function filter(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+            
+            $search = $request->input('search');
+            
+            $store_controller = new StoreController;
+            $store_ids = $store_controller->searchStoreByTags($search);
+            
+            //
+            $products = Product::where(function ($query) use ($search,$store_ids) {
+                    $query->where('name','LIKE','%'.$search.'%')
+                          ->orWhereIn('store_id',$store_ids);
+                })
+                ->with('store')
+                ->orderBy('products.created_at','DESC');
+            
+            if ($request->all){
+                $products =  $products->get();
+            }else{
+                $products = $products->paginate(20);
+            }
+
+            $data  =  new Data($products);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -87,6 +153,7 @@ class ProductController extends Controller
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
             'description' => 'required',
+            'price' => 'required|numeric',
             'image' => 'nullable|file',
             'store_id' => 'required|numeric|exists:stores,id',
         ]);
@@ -101,6 +168,7 @@ class ProductController extends Controller
             $product = new Product;
             $product->name = $request->input('name');
             $product->description = $request->input('description');
+            $product->price = $request->input('price');
             $product->image = $request->file('image');
             $product->store_id = $request->input('store_id');
             $product->user_id = Auth::user()->id;
@@ -167,6 +235,7 @@ class ProductController extends Controller
             $product = Product::where('id',$id)->first();
             $product->name = $request->input('name');
             $product->description = $request->input('description');
+            $product->price = $request->input('price');
             $request->file('image') ? $product->image = $request->file('image') : null;
             $product->save();
             

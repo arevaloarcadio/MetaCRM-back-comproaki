@@ -7,8 +7,9 @@ use App\Helpers\Api as ApiHelper;
 use App\Http\Resources\Data;
 use App\Traits\ApiController;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Store;
-use App\Models\UserStore;
+use App\Models\{Tag,Store,UserStore};
+use Illuminate\Support\Arr;
+use Carbon\Carbon;
 
 class StoreController extends Controller
 {   
@@ -27,7 +28,7 @@ class StoreController extends Controller
 
         try{
 
-            $stores =  Store::paginate(20);
+            $stores =  Store::with('tags')->paginate(20);
           
             $data  =  new Data($stores);
             $resource = array_merge($resource, $data->toArray($request));
@@ -46,7 +47,26 @@ class StoreController extends Controller
         try{
 
             $user = Auth::user();
-            $stores =  $user->stores()->paginate(20);
+            $stores =  $user->stores()->with('tags')->paginate(20);
+          
+            $data  =  new Data($stores);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function byUserAll(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $user = Auth::user();
+            $stores =  $user->stores()->with('tags')->get();
           
             $data  =  new Data($stores);
             $resource = array_merge($resource, $data->toArray($request));
@@ -58,6 +78,69 @@ class StoreController extends Controller
         return $this->sendResponse($resource);
     }
     
+    public function filter(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+            
+            $search = $request->input('search');
+
+            $search_store = $this->searchStore($search);
+            
+            $search_store_by_tags = $this->searchStoreByTags($search);
+
+            $store_ids = Arr::collapse([$search_store,$search_store_by_tags]);
+
+            $stores = Store::whereIn('id',$store_ids)
+                ->with('tags');
+            
+            if($request->all){
+                $stores = $stores->get();
+            }else{
+                $stores = $stores->paginate(20);
+            }
+            
+            $data  = new Data($stores);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+
+    public function searchStore($search)
+    {
+        $stores = Store::select('stores.id')
+                ->where('name','LIKE','%'.$search.'%')
+                ->get()
+                ->toArray();
+
+        $store_ids = array_column($stores, 'id');
+
+        return $store_ids;
+    }
+
+
+    public function searchStoreByTags($search)
+    {
+        $tags = Tag::select('tags.id')
+            ->where('name','LIKE','%'.$search.'%');
+
+        $stores = Store::select('stores.id')
+            ->join('store_tags','store_tags.store_id','stores.id')
+            ->whereIn('tag_id',$tags)
+            ->get()
+            ->toArray();
+
+        $store_ids = array_column($stores, 'id');
+
+        return $store_ids;
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -76,6 +159,8 @@ class StoreController extends Controller
             'phone' => 'nullable',
             'address' => 'nullable',
             'image' => 'nullable|file',
+            'tags' => 'required|array',
+            'tags.*' => 'numeric|exists:tags,id'
         ]);
 
         if($validator->fails()){
@@ -99,6 +184,13 @@ class StoreController extends Controller
             $user_store->store_id = $store->id;
             $user_store->user_id = Auth::user()->id;  
             $user_store->save();
+
+            foreach ($request->input('tags') as $tag) {
+                $store->tags()->attach($tag,[
+                  'created_at' => Carbon::now(), 
+                  'updated_at' => Carbon::now()
+                ]);
+            }
 
             $data  =  new Data($store);
             $resource = array_merge($resource, $data->toArray($request));
