@@ -38,6 +38,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('/byStore/{store_id}','ProductController@byStore');
         Route::get('/byStoreUser','ProductController@byStoreUser');
         Route::get('/{id}','ProductController@show');
+        Route::get('/relatedProducts/{id}','ProductController@relatedProducts');
         Route::post('/','ProductController@store');
         Route::post('/filter','ProductController@filter');
         Route::post('/{id}','ProductController@update');

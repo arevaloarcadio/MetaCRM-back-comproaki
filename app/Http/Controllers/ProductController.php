@@ -116,7 +116,6 @@ class ProductController extends Controller
             $store_controller = new StoreController;
             $store_ids = $store_controller->searchStoreByTags($search);
             
-            //
             $products = Product::where(function ($query) use ($search,$store_ids) {
                     $query->where('name','LIKE','%'.$search.'%')
                           ->orWhereIn('store_id',$store_ids);
@@ -131,6 +130,46 @@ class ProductController extends Controller
             }
 
             $data  =  new Data($products);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function relatedProducts(Request $request,$product_id)
+    {
+        $resource = ApiHelper::resource();
+
+        $validator = \Validator::make([
+            'product_id' => $product_id
+        ],[
+            'product_id' => 'required|numeric|exists:products,id'
+        ]);
+
+        if($validator->fails()){
+            ApiHelper::setError($resource, 0, 422, $validator->errors()->all());
+            return $this->sendResponse($resource);
+        }
+
+        try{
+            
+            $product = Product::where('id',$product_id)->first();
+            
+            $tag_ids = $product->store->tags()->pluck('tags.id');
+
+            $store_controller = new StoreController;
+            $store_ids = $store_controller->searchStoreByTagIds($tag_ids);
+            
+            $products = Product::whereIn('store_id',$store_ids)
+                ->with('store')
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+            
+            $data = new Data($products);
             $resource = array_merge($resource, $data->toArray($request));
             ApiHelper::success($resource);
         }catch(\Exception $e){

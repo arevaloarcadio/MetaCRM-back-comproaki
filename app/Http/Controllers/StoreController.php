@@ -141,6 +141,20 @@ class StoreController extends Controller
         return $store_ids;
     }
 
+    public function searchStoreByTagIds($tag_ids)
+    {
+
+        $stores = Store::select('stores.id')
+            ->join('store_tags','store_tags.store_id','stores.id')
+            ->whereIn('tag_id',$tag_ids)
+            ->get()
+            ->toArray();
+
+        $store_ids = array_column($stores, 'id');
+
+        return $store_ids;
+    }
+
     /**
      * Store a newly created resource in storage.
      *

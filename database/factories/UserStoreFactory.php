@@ -27,7 +27,7 @@ class UserStoreFactory extends Factory
 
             $store_id = Store::inRandomOrder()->first()->id;
             
-            $exists = UserStore::where('user_id',$user_id)->where('store_id',$store_id )->exists();
+            $exists = UserStore::where('user_id',$user_id)->where('store_id',$store_id)->exists();
         }
 
         return [
