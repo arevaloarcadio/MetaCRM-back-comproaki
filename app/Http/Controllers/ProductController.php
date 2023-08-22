@@ -195,6 +195,7 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'image' => 'nullable|file',
             'store_id' => 'required|numeric|exists:stores,id',
+            'category_id' => 'required|numeric|exists:categories,id',
         ]);
 
         if($validator->fails()){
@@ -210,6 +211,7 @@ class ProductController extends Controller
             $product->price = $request->input('price');
             $product->image = $request->file('image');
             $product->store_id = $request->input('store_id');
+            $product->category_id = $request->input('category_id');
             $product->user_id = Auth::user()->id;
             $product->save();
 
@@ -262,6 +264,7 @@ class ProductController extends Controller
             'name' => 'required',
             'description' => 'required',
             'image' => 'nullable',
+            'category_id' => 'required|numeric|exists:categories,id'
         ]);
 
         if($validator->fails()){
@@ -276,6 +279,7 @@ class ProductController extends Controller
             $product->description = $request->input('description');
             $product->price = $request->input('price');
             $request->file('image') ? $product->image = $request->file('image') : null;
+            $product->category_id = $request->input('category_id');
             $product->save();
             
             $data  =  new Data($product);

@@ -56,4 +56,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('/all','TagController@all');
         Route::get('/byStore/{store_id}','TagController@byStore');
     });
+
+    Route::prefix('categories')->group(function () {
+        Route::get('/','CategoryController@index');
+        Route::get('/all','CategoryController@all');
+        Route::post('/','CategoryController@store');
+        Route::post('/{id}','CategoryController@update');
+    });
 });
