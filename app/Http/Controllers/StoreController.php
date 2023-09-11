@@ -170,6 +170,7 @@ class StoreController extends Controller
             'state' => 'required',
             'city' => 'required',
             'postal_code' => 'required',
+            'type' => 'required|in:Restaurant,Tienda',
             'phone' => 'nullable',
             'address' => 'nullable',
             'image' => 'nullable|file',
@@ -188,6 +189,7 @@ class StoreController extends Controller
             $store->name = $request->input('name');
             $store->state = $request->input('state');
             $store->city = $request->input('city');
+            $store->type = $request->input('type');
             $store->postal_code = $request->input('postal_code');
             $store->phone = $request->input('phone');
             $store->address = $request->input('address');
@@ -253,6 +255,7 @@ class StoreController extends Controller
             'name' => 'required',
             'state' => 'required',
             'city' => 'required',
+            'type' => 'required|in:Restaurant,Tienda',
             'postal_code' => 'required',
             'phone' => 'nullable',
             'address' => 'nullable',
@@ -271,6 +274,7 @@ class StoreController extends Controller
             $store->name = $request->input('name');
             $store->state = $request->input('state');
             $store->city = $request->input('city');
+            $store->type = $request->input('type');
             $store->postal_code = $request->input('postal_code');
             $store->phone = $request->input('phone');
             $store->address = $request->input('address');

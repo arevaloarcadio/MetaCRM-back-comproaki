@@ -19,8 +19,51 @@ class CategoryController extends Controller
 
         try{
 
-            $categories = Category::where('user_id',Auth::user()->id)
+            $user = Auth::user();
+            $stores = $user->stores()->pluck('stores.id');
+
+            $categories = Category::whereIn('store_id',$stores)
+                ->with('store')
                 ->paginate(20);
+
+            $data  =  new Data($categories);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+
+    public function byStore(Request $request,$store_id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $categories = Category::where('store_id',$store_id)
+                ->paginate(20);
+
+            $data  =  new Data($categories);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function byStoreAll(Request $request,$store_id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $categories = Category::where('store_id',$store_id)
+                ->get();
 
             $data  =  new Data($categories);
             $resource = array_merge($resource, $data->toArray($request));
@@ -57,6 +100,7 @@ class CategoryController extends Controller
         $validator = \Validator::make($request->all(),[
             'name' => 'required',
             'description' => 'required',
+            'store_id' => 'required',
             'image' => 'nullable|file'
         ]);
 
@@ -71,7 +115,7 @@ class CategoryController extends Controller
             $store->name = $request->input('name');
             $store->description = $request->input('description');
             $store->image = $request->file('image');
-            $store->user_id = Auth::user()->id;
+            $store->store_id = $request->input('store_id');
             $store->save();
 
             $data  =  new Data($store);

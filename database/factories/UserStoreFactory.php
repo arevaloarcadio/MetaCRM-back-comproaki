@@ -16,6 +16,8 @@ class UserStoreFactory extends Factory
      */
     public function definition(): array
     {   
+        //ClassName::factory()->count(3)->create()
+        
         $exists = true;
         
         $user_id = null;

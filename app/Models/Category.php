@@ -19,4 +19,8 @@ class Category extends Model
       $this->attributes['image'] = $name;
       \Storage::disk('local')->put($name, \File::get($value));
     }
+
+    public function store(){
+      return $this->belongsTo('App\Models\Store');
+    }
 }

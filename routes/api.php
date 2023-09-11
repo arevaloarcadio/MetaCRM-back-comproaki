@@ -36,7 +36,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('/','ProductController@index');
         Route::get('/byUser','ProductController@byUser');
         Route::get('/byStore/{store_id}','ProductController@byStore');
+        Route::get('/byCategory/{category_id}','ProductController@byCategory');
         Route::get('/byStoreUser','ProductController@byStoreUser');
+        
         Route::get('/{id}','ProductController@show');
         Route::get('/relatedProducts/{id}','ProductController@relatedProducts');
         Route::post('/','ProductController@store');
@@ -59,6 +61,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::prefix('categories')->group(function () {
         Route::get('/','CategoryController@index');
+        Route::get('/byStore/{store_id}/all','CategoryController@byStoreAll');
+        Route::get('/byStore/{store_id}','CategoryController@byStore');
         Route::get('/all','CategoryController@all');
         Route::post('/','CategoryController@store');
         Route::post('/{id}','CategoryController@update');

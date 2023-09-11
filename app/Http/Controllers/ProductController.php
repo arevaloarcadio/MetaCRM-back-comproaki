@@ -105,6 +105,27 @@ class ProductController extends Controller
         return $this->sendResponse($resource);
     }
 
+
+    public function byCategory(Request $request,$category_id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $products = Product::where('category_id',$category_id)
+                ->with('store')
+                ->paginate(20);
+
+            $data  =  new Data($products);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
     public function filter(Request $request)
     {
         $resource = ApiHelper::resource();

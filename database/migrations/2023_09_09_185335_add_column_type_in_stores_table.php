@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('description');
-            $table->string('image')->nullable();
-            $table->unsignedInteger('store_id');
-            $table->timestamps();
+        Schema::table('stores', function (Blueprint $table) {
+             $table->enum('type',['Restaurant','Tienda']);
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::table('stores', function (Blueprint $table) {
+            //
+        });
     }
 };

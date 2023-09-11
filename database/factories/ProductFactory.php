@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\{Store,StoreTag,User,UserStore};
+use App\Models\{Store,StoreTag,User,Category,UserStore};
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
@@ -17,8 +17,18 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {   
-        $store_id = Store::whereRaw('id IN(SELECT store_id FROM user_stores)')->inRandomOrder()->first()->id;
-        $user_id = UserStore::where('store_id',$store_id)->first()->user_id;
+        $store_id = Store::whereRaw('id IN(SELECT store_id FROM user_stores)')
+            ->inRandomOrder()
+            ->first()
+            ->id;
+
+        $user_id = UserStore::where('store_id',$store_id)
+            ->first()
+            ->user_id;
+
+        $category_id = Category::where('store_id',$store_id)
+            ->first()
+            ->id;
 
         return [
             'name' => fake()->word(),
@@ -27,6 +37,7 @@ class ProductFactory extends Factory
             'price' => fake()->randomFloat(2, 0, 1000),
             'store_id' => $store_id,
             'user_id' => $user_id,
+            'category_id' => $category_id,
         ];
     }
 }
