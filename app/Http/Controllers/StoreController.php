@@ -170,6 +170,7 @@ class StoreController extends Controller
             'state' => 'required',
             'city' => 'required',
             'postal_code' => 'required',
+            'has_category' => 'required|boolean',
             'type' => 'required|in:Restaurant,Tienda',
             'phone' => 'nullable',
             'address' => 'nullable',
@@ -191,6 +192,7 @@ class StoreController extends Controller
             $store->city = $request->input('city');
             $store->type = $request->input('type');
             $store->postal_code = $request->input('postal_code');
+            $store->has_category = $request->input('has_category');
             $store->phone = $request->input('phone');
             $store->address = $request->input('address');
             $store->image = $request->file('image');
@@ -256,6 +258,7 @@ class StoreController extends Controller
             'state' => 'required',
             'city' => 'required',
             'type' => 'required|in:Restaurant,Tienda',
+            'has_category' => 'required|boolean',
             'postal_code' => 'required',
             'phone' => 'nullable',
             'address' => 'nullable',
@@ -276,6 +279,7 @@ class StoreController extends Controller
             $store->city = $request->input('city');
             $store->type = $request->input('type');
             $store->postal_code = $request->input('postal_code');
+            $store->has_category = $request->input('has_category');
             $store->phone = $request->input('phone');
             $store->address = $request->input('address');
             $request->file('image') ? $store->image = $request->file('image') : null;

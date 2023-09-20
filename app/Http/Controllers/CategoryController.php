@@ -160,4 +160,22 @@ class CategoryController extends Controller
 
         return $this->sendResponse($resource);
     }
+
+    public function show(Request $request,$id)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $category = Category::where('id',$id)->first();
+
+            $data  =  new Data($category);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
 }

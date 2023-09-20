@@ -160,14 +160,14 @@ class ProductController extends Controller
         return $this->sendResponse($resource);
     }
 
-    public function relatedProducts(Request $request,$product_id)
+    public function relatedProducts(Request $request,$store_id)
     {
         $resource = ApiHelper::resource();
 
         $validator = \Validator::make([
-            'product_id' => $product_id
+            'store_id' => $store_id
         ],[
-            'product_id' => 'required|numeric|exists:products,id'
+            'store_id' => 'required|numeric|exists:stores,id'
         ]);
 
         if($validator->fails()){
@@ -177,24 +177,16 @@ class ProductController extends Controller
 
         try{
             
-            $product = Product::where('id',$product_id)->first();
-            
-            $tag_ids = $product->store->tags()->pluck('tags.id');
-
-            $store_controller = new StoreController;
-            $store_ids = $store_controller->searchStoreByTagIds($tag_ids);
-            
-            $products = Product::whereIn('store_id',$store_ids)
-                ->with('store')
-                ->inRandomOrder()
+            $related_products = Product::where('store_id',$store_id)
                 ->limit(4)
+                ->inRandomOrder()
                 ->get();
-            
-            $data = new Data($products);
+
+            $data = new Data($related_products);
             $resource = array_merge($resource, $data->toArray($request));
             ApiHelper::success($resource);
         }catch(\Exception $e){
-            ApiHelper::setException($resource, $e);
+            ApiHelper::setException($resou-ce, $e);
         }
 
         return $this->sendResponse($resource);
@@ -216,7 +208,8 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'image' => 'nullable|file',
             'store_id' => 'required|numeric|exists:stores,id',
-            'category_id' => 'required|numeric|exists:categories,id',
+            'has_category' => 'required|boolean',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         if($validator->fails()){

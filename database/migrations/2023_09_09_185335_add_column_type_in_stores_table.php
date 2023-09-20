@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-             $table->enum('type',['Restaurant','Tienda']);
+            $table->enum('type',['Restaurant','Tienda']);
+            $table->boolean('has_category');
         });
     }
 

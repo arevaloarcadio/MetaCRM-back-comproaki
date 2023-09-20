@@ -28,7 +28,13 @@ class TagSeeder extends Seeder
             ],
             [
                 'name' => 'Higiene'
-            ]
+            ],
+            [
+                'name' => 'Restaurant'
+            ],
+            [
+                'name' => 'Bar'
+            ],
         ]);
     }
 }
