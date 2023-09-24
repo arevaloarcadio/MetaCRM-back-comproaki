@@ -16,7 +16,7 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request,$store_id)
     {
         $resource = ApiHelper::resource();
 
@@ -25,6 +25,7 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $orders = Order::where('user_id',$user->id)
+                ->where('store_id',$store_id)
                 ->with([
                     'product' => function($query) {
                         $query->with(['store']);

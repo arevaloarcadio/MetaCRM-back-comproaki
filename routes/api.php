@@ -69,8 +69,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     Route::prefix('orders')->group(function () {
-        Route::get('/','OrderController@index');
         Route::get('/byStore','OrderController@storeByOrders');
+        Route::get('/{store_id}','OrderController@index');
         Route::post('/','OrderController@store');
     });
 });
