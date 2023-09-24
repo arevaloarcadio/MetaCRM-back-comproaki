@@ -253,4 +253,16 @@ class AuthController extends Controller
             $request->user()
         );
     }
+
+    public function saveToken(Request $request)
+    {   
+        $user = Auth::user();
+
+        $user->device_token = $request->token;
+        $user->save();
+
+        return response()->json([
+            'message' => 'OK'
+        ]);
+    }
 }

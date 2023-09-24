@@ -10,4 +10,5 @@ Route::post('/provider/login', [AuthController::class, 'registerProvider']);
 Route::group(['middleware' => ['auth:sanctum']], function() { 
 	Route::post('/logout', [AuthController::class, 'logout']);
 	Route::post('/editProfile', [AuthController::class, 'update']);
+	Route::post('/saveToken', [AuthController::class, 'saveToken']);
 });

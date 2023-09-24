@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Helpers\Api as ApiHelper;
 use App\Http\Resources\Data;
-use App\Traits\ApiController;
+use App\Traits\{ApiController,SendNotificationFcm};
 use Illuminate\Support\Facades\Auth;
 use App\Models\{Product,Store,Tag};
 
 class ProductController extends Controller
 {   
-    use ApiController;
+    use ApiController,SendNotificationFcm;
 
     /**
      * Display a listing of the resource.
@@ -228,6 +228,12 @@ class ProductController extends Controller
             $product->category_id = $request->input('category_id');
             $product->user_id = Auth::user()->id;
             $product->save();
+
+            $title = "Comproaki";
+            $body = $product->store->name." ha publicado un nuevo producto";
+            $image = env('APP_URL').$product->image;
+
+            $this->sendNotification($product->store_id,$title,$body,$image);
 
             $data  =  new Data($product);
             $resource = array_merge($resource, $data->toArray($request));
