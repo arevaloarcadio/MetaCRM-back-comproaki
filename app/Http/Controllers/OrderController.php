@@ -8,7 +8,7 @@ use App\Http\Resources\Data;
 use App\Traits\{ApiController,SendNotificationFcm};
 use Illuminate\Support\Facades\Auth;
 use App\Models\{Order,Store};
-
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -45,7 +45,7 @@ class OrderController extends Controller
     }
 
 
-     public function storeByOrders(Request $request)
+    public function storeByOrders(Request $request)
     {
         $resource = ApiHelper::resource();
 
@@ -64,6 +64,80 @@ class OrderController extends Controller
                 ->paginate(20);
 
             $data = new Data($stores);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function showByToken(Request $request,$token)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+
+            $user = Auth::user();
+
+            $orders = Order::where('token_link',$token)
+                ->with([
+                    'product' => function($query) {
+                        $query->with(['store']);
+                    },
+                    'user',
+                    'store'
+                ])->paginate(20);
+
+            $data = new Data($orders);
+            $resource = array_merge($resource, $data->toArray($request));
+            ApiHelper::success($resource);
+        
+        }catch(\Exception $e){
+            ApiHelper::setException($resource, $e);
+        }
+
+        return $this->sendResponse($resource);
+    }
+
+    public function generateTokenLink(Request $request)
+    {
+        $resource = ApiHelper::resource();
+
+        try{
+            
+            $validator = \Validator::make($request->all(),[
+                'store_id' => 'numeric|exists:stores,id',
+            ]);
+
+            if($validator->fails()){
+                ApiHelper::setError($resource, 0, 422, $validator->errors()->all());
+                return $this->sendResponse($resource);
+            }
+
+            $user = Auth::user();
+            $token = null;
+
+            $order = Order::where('token_link', $token)->first();
+
+            if (is_null($order)) {
+                
+                do {
+                    $token = Str::uuid();
+                } while (Order::where('token_link', $token)->first() instanceof Order); 
+                
+                $store_ids = Order::where('user_id',$user->id)
+                    ->where('store_id',$request->store_id)
+                    ->update([
+                        'token_link' => $token
+                    ]); 
+            }else{
+                $token = $order->token_link;
+            }
+            
+            $data = new Data(['token' => env('APP_URL').'/order/'.$token]);
             $resource = array_merge($resource, $data->toArray($request));
             ApiHelper::success($resource);
         

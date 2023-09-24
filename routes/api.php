@@ -72,5 +72,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('/byStore','OrderController@storeByOrders');
         Route::get('/{store_id}','OrderController@index');
         Route::post('/','OrderController@store');
+        Route::post('/generateTokenLink','OrderController@generateTokenLink');
     });
+});
+
+Route::prefix('orders')->group(function () {
+    Route::get('/{token}/token','OrderController@showByToken');
 });
