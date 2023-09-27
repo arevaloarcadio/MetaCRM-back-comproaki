@@ -120,7 +120,9 @@ class OrderController extends Controller
             $user = Auth::user();
             $token = null;
 
-            $order = Order::where('token_link', $token)->first();
+            $order = Order::where('token_link', $token)
+                ->whereRaw('token_link IS NOT NULL')
+                ->first();
 
             if (is_null($order)) {
                 
