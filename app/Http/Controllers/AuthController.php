@@ -262,7 +262,8 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'OK'
+            'message' => 'OK',
+            'user' => $user
         ]);
     }
 }

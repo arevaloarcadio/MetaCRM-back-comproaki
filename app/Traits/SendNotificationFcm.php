@@ -23,6 +23,19 @@ trait SendNotificationFcm
                 "title" => $title,
                 "body" => $body,
                 "image" => $image 
+            ],
+            "android"=> [ 
+                "priority" =>"high"
+            ],
+            "apns" => [
+                "headers" =>[
+                    "apns-priority"=>"5"
+                ]
+            ],
+            "webpush" =>[
+                "headers" => [
+                    "Urgency"=> "high"
+                ]
             ]
         ];
         

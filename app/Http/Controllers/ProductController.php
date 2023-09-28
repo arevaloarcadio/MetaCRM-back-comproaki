@@ -233,7 +233,7 @@ class ProductController extends Controller
             $body = $product->store->name." ha publicado un nuevo producto";
             $image = env('APP_URL').$product->image;
 
-            $this->sendNotification($product->store_id,$title,$body,$image);
+            return $this->sendNotification($product->store_id,$title,$body,$image);
 
             $data  =  new Data($product);
             $resource = array_merge($resource, $data->toArray($request));
